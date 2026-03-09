@@ -2,15 +2,14 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>THUAN MD5 PREDICT</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GAME RESULT VIEWER</title>
 
 <style>
-
 body{
 margin:0;
-font-family:Arial, sans-serif;
-background:linear-gradient(160deg,#081c33,#020f24);
+font-family:Arial;
+background:#081c33;
 color:white;
 display:flex;
 justify-content:center;
@@ -19,88 +18,53 @@ justify-content:center;
 .container{
 width:90%;
 max-width:420px;
-margin-top:35px;
+margin-top:40px;
 background:#0f1c35;
 padding:25px;
-border-radius:18px;
-box-shadow:0 0 40px rgba(0,0,0,0.7);
+border-radius:16px;
 }
 
 .title{
 text-align:center;
 font-size:22px;
-color:#27ff8a;
 margin-bottom:20px;
-font-weight:bold;
+color:#27ff8a;
 }
 
 .card{
 background:#0b1730;
 padding:15px;
-border-radius:12px;
+border-radius:10px;
 margin-top:10px;
 text-align:center;
 }
 
 .label{
-font-size:14px;
 color:#aaa;
+font-size:14px;
 }
 
 .value{
-font-size:19px;
+font-size:18px;
 font-weight:bold;
 margin-top:5px;
 }
 
 button{
-margin-top:18px;
+margin-top:15px;
 width:100%;
 padding:14px;
 border:none;
-border-radius:12px;
+border-radius:10px;
 background:#27ff8a;
-color:#001c12;
-font-size:16px;
+color:black;
 font-weight:bold;
-cursor:pointer;
 }
-
-button:hover{
-background:#19d973;
-}
-
-.percent{
-color:#ffc107;
-}
-
-.footer{
-margin-top:15px;
-text-align:center;
-font-size:12px;
-color:#777;
-}
-
-.chart{
-display:flex;
-flex-wrap:wrap;
-margin-top:10px;
-}
-
-.dot{
-width:12px;
-height:12px;
-border-radius:50%;
-margin:3px;
-}
-
-.tai{background:#ff3b3b;}
-.xiu{background:#2e7dff;}
 
 .loading{
 text-align:center;
-font-size:13px;
 margin-top:10px;
+font-size:13px;
 color:#bbb;
 }
 
@@ -111,10 +75,10 @@ color:#bbb;
 
 <div class="container">
 
-<div class="title">THUAN MD5 PREDICT</div>
+<div class="title">GAME RESULT</div>
 
 <div class="card">
-<div class="label">Phiên hiện tại</div>
+<div class="label">Phiên</div>
 <div class="value" id="phien">---</div>
 </div>
 
@@ -125,7 +89,7 @@ color:#bbb;
 
 <div class="card">
 <div class="label">Xúc xắc</div>
-<div class="value" id="dice">🎲 🎲 🎲</div>
+<div class="value" id="dice">---</div>
 </div>
 
 <div class="card">
@@ -133,112 +97,48 @@ color:#bbb;
 <div class="value" id="tong">---</div>
 </div>
 
-<div class="card">
-<div class="label">Dự đoán phiên tiếp theo</div>
-<div class="value" id="predict">---</div>
-</div>
-
-<div class="card">
-<div class="label">% Đọc cầu</div>
-<div class="value percent" id="percent">0%</div>
-</div>
-
-<button onclick="getData()">LẤY KẾT QUẢ</button>
+<button onclick="getData()">Cập nhật</button>
 
 <div class="loading" id="loading"></div>
-
-<div class="chart" id="chart"></div>
-
-<div class="footer">DEV: THUAN</div>
 
 </div>
 
 <script>
 
-let historyList=[]
-
 async function getData(){
 
-document.getElementById("loading").innerText="Đang lấy dữ liệu..."
+document.getElementById("loading").innerText="Đang tải..."
 
 try{
 
-let res = await fetch("https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5")
+let res = await fetch("API_URL_CUA_BAN")
 
 let data = await res.json()
 
-let phien = data.phien || Math.floor(Math.random()*100000)
-let md5 = data.md5 || "N/A"
+let phien = data.phien
+let md5 = data.md5
+let d1 = data.dice[0]
+let d2 = data.dice[1]
+let d3 = data.dice[2]
 
-let d1 = data.dice?.[0] || Math.floor(Math.random()*6)+1
-let d2 = data.dice?.[1] || Math.floor(Math.random()*6)+1
-let d3 = data.dice?.[2] || Math.floor(Math.random()*6)+1
-
-let tong = d1+d2+d3
-
-let predict = tong >= 11 ? "TÀI" : "XỈU"
-
-let percent = Math.floor(Math.random()*40)+60
+let tong = d1 + d2 + d3
 
 document.getElementById("phien").innerText = phien
 document.getElementById("md5").innerText = md5
-document.getElementById("dice").innerText = d1+" - "+d2+" - "+d3
+document.getElementById("dice").innerText = d1+"-"+d2+"-"+d3
 document.getElementById("tong").innerText = tong
-document.getElementById("predict").innerText = predict
-document.getElementById("percent").innerText = percent+"%"
 
 document.getElementById("loading").innerText=""
 
-updateChart(predict)
+}catch(e){
 
-}catch{
-
-document.getElementById("loading").innerText="API lỗi hoặc server tắt"
+document.getElementById("loading").innerText="Không lấy được dữ liệu"
 
 }
 
 }
 
-function updateChart(result){
-
-historyList.unshift(result)
-
-if(historyList.length>25){
-historyList.pop()
-}
-
-drawChart()
-
-}
-
-function drawChart(){
-
-let chart=document.getElementById("chart")
-chart.innerHTML=""
-
-historyList.forEach(r=>{
-
-let dot=document.createElement("div")
-
-dot.classList.add("dot")
-
-if(r=="TÀI"){
-dot.classList.add("tai")
-}else{
-dot.classList.add("xiu")
-}
-
-chart.appendChild(dot)
-
-})
-
-}
-
-/* Auto update */
-
-setInterval(function(){
-getData()
-},10000)
+setInterval(getData,10000)
 
 </script>
 
