@@ -2,32 +2,20 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ADMIN TOOL KEY</title>
+<title>ADMIN TOOL</title>
 
 <style>
-
 body{
-background:#0f172a;
+background:#111;
 color:white;
 font-family:Arial;
 text-align:center;
 padding:20px;
 }
 
-.box{
-background:#1e293b;
-padding:20px;
-border-radius:10px;
-margin:20px;
-}
-
 button{
-padding:10px 20px;
-border:none;
-background:#22c55e;
-color:white;
+padding:12px 20px;
 font-size:16px;
-border-radius:6px;
 margin-top:10px;
 }
 
@@ -38,36 +26,27 @@ font-size:16px;
 
 #result{
 margin-top:15px;
-color:#22c55e;
 font-size:18px;
+color:#00ff88;
 }
 
-.user{
-background:#334155;
-padding:10px;
-margin:5px;
-border-radius:5px;
+#error{
+color:red;
+margin-top:10px;
 }
-
 </style>
 
 </head>
 
 <body>
 
-<h1>ADMIN KEY TOOL</h1>
-
-<div class="box">
-
 <h2>TẠO KEY</h2>
 
 <select id="time">
-
-<option value="1">1 Giờ</option>
-<option value="6">6 Giờ</option>
-<option value="12">12 Giờ</option>
-<option value="24">24 Giờ</option>
-
+<option value="1">1 giờ</option>
+<option value="6">6 giờ</option>
+<option value="12">12 giờ</option>
+<option value="24">24 giờ</option>
 </select>
 
 <br>
@@ -75,71 +54,39 @@ border-radius:5px;
 <button onclick="createKey()">TẠO KEY</button>
 
 <div id="result"></div>
-
-</div>
-
-<div class="box">
-
-<h2>NGƯỜI ĐANG DÙNG TOOL</h2>
-
-<button onclick="loadUsers()">TẢI DANH SÁCH</button>
-
-<div id="users"></div>
-
-</div>
-
+<div id="error"></div>
 
 <script>
 
-SERVER = "http://IP_SERVER:5000"
+const SERVER = "http://IP_SERVER:5000"; // sửa IP server
 
 function createKey(){
+
+document.getElementById("error").innerText=""
+document.getElementById("result").innerText="Đang tạo key..."
 
 let hours = document.getElementById("time").value
 
 fetch(SERVER + "/create_key",{
-
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
-body:JSON.stringify({
-hours:hours
+body:JSON.stringify({hours:hours})
 })
+.then(res => res.json())
+.then(data => {
 
-})
-.then(res=>res.json())
-.then(data=>{
-
-document.getElementById("result").innerHTML =
-"KEY: <b>"+data.key+"</b>"
+document.getElementById("result").innerText =
+"KEY: " + data.key
 
 })
+.catch(err => {
 
-}
+document.getElementById("error").innerText =
+"Lỗi kết nối server!"
 
-function loadUsers(){
-
-fetch(SERVER + "/users")
-.then(res=>res.json())
-.then(data=>{
-
-let html=""
-
-data.forEach(u=>{
-
-html+=`
-<div class="user">
-IP: ${u.ip} <br>
-Device: ${u.device}
-</div>
-`
-
-})
-
-document.getElementById("users").innerHTML=html
+document.getElementById("result").innerText=""
 
 })
 
