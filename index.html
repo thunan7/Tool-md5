@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>API TOOL</title>
+<title>Tool Sunwin</title>
 
 <style>
 
@@ -15,51 +13,30 @@ background:#0f172a;
 color:white;
 font-family:Arial;
 text-align:center;
-margin:0;
-}
-
-header{
-background:#020617;
-padding:15px;
-font-size:22px;
-color:#38bdf8;
+padding:20px;
 }
 
 .box{
 background:#1e293b;
 padding:20px;
-margin:20px auto;
-border-radius:12px;
-width:320px;
-}
-
-input{
-padding:10px;
-width:80%;
-border:none;
-border-radius:6px;
-}
-
-button{
-padding:10px 20px;
-margin-top:10px;
-background:#38bdf8;
-border:none;
-border-radius:6px;
-color:white;
+border-radius:10px;
+max-width:350px;
+margin:auto;
 }
 
 .data{
-font-size:18px;
 margin:10px;
-}
-
-.green{
-color:#22c55e;
+font-size:18px;
 }
 
 .red{
 color:#ef4444;
+font-weight:bold;
+}
+
+.green{
+color:#22c55e;
+font-weight:bold;
 }
 
 </style>
@@ -68,93 +45,43 @@ color:#ef4444;
 
 <body>
 
-<header>
-API TOOL
-</header>
+<h2>🎲 TOOL SUNWIN</h2>
 
-<div class="box" id="login">
-
-<h3>Nhập Key</h3>
-
-<input id="keyInput" placeholder="Nhập key">
-
-<br>
-
-<button onclick="checkKey()">Xác nhận</button>
-
-<p id="status"></p>
-
-</div>
-
-<div class="box" id="tool" style="display:none">
-
-<h3>Dữ liệu API</h3>
+<div class="box">
 
 <div class="data">
-Phiên: <span id="phien">--</span>
+Phiên: <span id="phien">---</span>
 </div>
 
 <div class="data">
-MD5: <span id="md5">--</span>
+MD5: <span id="md5">---</span>
 </div>
 
 <div class="data">
-Dice: <span id="dice">--</span>
+Dice: <span id="dice">---</span>
 </div>
 
 <div class="data">
-Tổng: <span id="tong">--</span>
+Tổng: <span id="tong">---</span>
 </div>
 
 <div class="data">
-Kết quả: <span id="ketqua">--</span>
+Kết quả: <span id="ketqua">---</span>
 </div>
 
 </div>
 
 <script>
 
-const API_URL = "https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5"
-
-const KEYS = [
-"FREE123",
-"VIP999",
-"ADMIN777"
-]
-
-function checkKey(){
-
-let key=document.getElementById("keyInput").value
-
-if(KEYS.includes(key)){
-
-document.getElementById("login").style.display="none"
-document.getElementById("tool").style.display="block"
-
-loadData()
-
-setInterval(loadData,5000)
-
-}else{
-
-document.getElementById("status").innerText="Key không hợp lệ"
-
-}
-
-}
-
-async function loadData(){
+async function getSunwin(){
 
 try{
 
-let res = await fetch(API_URL)
-
+let res = await fetch("https://api.sunwin.fake/taixiu")
 let data = await res.json()
 
-document.getElementById("phien").innerText=data.phien||"--"
-document.getElementById("md5").innerText=data.md5||"--"
-
-if(data.dice){
+document.getElementById("phien").innerText=data.session
+document.getElementById("md5").innerText=data.md5
 
 let d1=data.dice[0]
 let d2=data.dice[1]
@@ -175,20 +102,19 @@ document.getElementById("ketqua").innerHTML="<span class='green'>XỈU</span>"
 
 }
 
-}
-
 }catch(e){
 
-console.log(e)
-
-document.getElementById("phien").innerText="API ERROR"
+console.log("Lỗi API")
 
 }
 
 }
+
+getSunwin()
+
+setInterval(getSunwin,3000)
 
 </script>
 
 </body>
-
 </html>
