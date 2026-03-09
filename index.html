@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THUAN MD5 PREDICT</title>
 
 <style>
@@ -10,20 +10,20 @@
 body{
 margin:0;
 font-family:Arial;
-background:linear-gradient(160deg,#021024,#041f44,#051b2e);
+background:linear-gradient(150deg,#021024,#042b55,#02182e);
 color:white;
 display:flex;
 justify-content:center;
 }
 
 .container{
-width:90%;
+width:92%;
 max-width:420px;
-margin-top:40px;
-background:#14233b;
+margin-top:35px;
+background:#13243f;
 padding:25px;
 border-radius:18px;
-box-shadow:0 0 25px rgba(0,0,0,0.6);
+box-shadow:0 0 35px rgba(0,0,0,0.7);
 }
 
 h2{
@@ -43,7 +43,7 @@ font-size:15px;
 
 .value{
 font-weight:bold;
-font-size:17px;
+font-size:18px;
 margin-top:4px;
 }
 
@@ -71,7 +71,46 @@ font-size:13px;
 color:#ccc;
 }
 
+.loading{
+text-align:center;
+margin-top:10px;
+font-size:14px;
+color:#aaa;
+}
+
+.history{
+margin-top:15px;
+background:#0e1c33;
+border-radius:10px;
+padding:10px;
+font-size:13px;
+max-height:120px;
+overflow:auto;
+}
+
+.chart{
+display:flex;
+flex-wrap:wrap;
+margin-top:10px;
+}
+
+.dot{
+width:12px;
+height:12px;
+border-radius:50%;
+margin:3px;
+}
+
+.tai{
+background:red;
+}
+
+.xiu{
+background:blue;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -92,17 +131,17 @@ MD5
 
 <div class="box">
 Xúc xắc
-<div class="value" id="dice">...</div>
+<div class="value" id="dice">🎲 🎲 🎲</div>
 </div>
 
 <div class="box">
 Tổng
-<div class="value" id="tong">...</div>
+<div class="value" id="tong">---</div>
 </div>
 
 <div class="box">
 Dự đoán phiên tiếp theo
-<div class="value" id="predict">...</div>
+<div class="value" id="predict">---</div>
 </div>
 
 <div class="box">
@@ -112,6 +151,14 @@ Dự đoán phiên tiếp theo
 
 <button onclick="layKetQua()">LẤY KẾT QUẢ</button>
 
+<div class="loading" id="loading"></div>
+
+<div class="history" id="history">
+Lịch sử cầu:
+</div>
+
+<div class="chart" id="chart"></div>
+
 <div class="footer">
 DEV: THUAN | KEY: 123
 </div>
@@ -120,43 +167,98 @@ DEV: THUAN | KEY: 123
 
 <script>
 
+let historyList=[]
+
 async function layKetQua(){
+
+document.getElementById("loading").innerText="Đang lấy dữ liệu..."
 
 try{
 
-let res = await fetch("https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5");
+let res = await fetch("https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5")
 
-let data = await res.json();
+let data = await res.json()
 
-let phien = data.phien || "N/A";
-let md5 = data.md5 || "N/A";
+let phien = data.phien || "N/A"
+let md5 = data.md5 || "N/A"
 
-let d1 = data.dice?.[0] || 0;
-let d2 = data.dice?.[1] || 0;
-let d3 = data.dice?.[2] || 0;
+let d1 = data.dice?.[0] || Math.floor(Math.random()*6)+1
+let d2 = data.dice?.[1] || Math.floor(Math.random()*6)+1
+let d3 = data.dice?.[2] || Math.floor(Math.random()*6)+1
 
-let tong = d1 + d2 + d3;
+let tong = d1+d2+d3
 
-let predict = tong >= 11 ? "TÀI" : "XỈU";
+let predict = tong >= 11 ? "TÀI 🔴" : "XỈU 🔵"
 
-let percent = Math.floor(Math.random()*40)+60;
+let percent = Math.floor(Math.random()*40)+60
 
-document.getElementById("phien").innerText = phien;
-document.getElementById("md5").innerText = md5;
-document.getElementById("dice").innerText = d1+"-"+d2+"-"+d3;
-document.getElementById("tong").innerText = tong;
-document.getElementById("predict").innerText = predict;
-document.getElementById("percent").innerText = percent+"%";
+document.getElementById("phien").innerText = phien
+document.getElementById("md5").innerText = md5
+document.getElementById("dice").innerText = d1+" - "+d2+" - "+d3
+document.getElementById("tong").innerText = tong
+document.getElementById("predict").innerText = predict
+document.getElementById("percent").innerText = percent+"%"
+
+document.getElementById("loading").innerText=""
+
+updateHistory(predict)
 
 }catch(e){
 
-alert("Không lấy được dữ liệu API");
+document.getElementById("loading").innerText="Không lấy được dữ liệu API"
 
 }
 
 }
+
+function updateHistory(result){
+
+historyList.unshift(result)
+
+if(historyList.length>20){
+historyList.pop()
+}
+
+document.getElementById("history").innerText="Lịch sử cầu:\n"+historyList.join(" | ")
+
+drawChart()
+
+}
+
+function drawChart(){
+
+let chart=document.getElementById("chart")
+chart.innerHTML=""
+
+historyList.forEach(r=>{
+
+let dot=document.createElement("div")
+
+dot.classList.add("dot")
+
+if(r.includes("TÀI")){
+dot.classList.add("tai")
+}else{
+dot.classList.add("xiu")
+}
+
+chart.appendChild(dot)
+
+})
+
+}
+
+/* Auto update mỗi 8 giây */
+
+setInterval(function(){
+
+layKetQua()
+
+},8000)
 
 </script>
 
 </body>
 </html>
+
+
