@@ -1,93 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>ADMIN TOOL</title>
-
-<style>
-body{
-background:#111;
-color:white;
-font-family:Arial;
-text-align:center;
-padding:20px;
-}
-
-button{
-padding:12px 20px;
-font-size:16px;
-margin-top:10px;
-}
-
-select{
-padding:10px;
-font-size:16px;
-}
-
-#result{
-margin-top:15px;
-font-size:18px;
-color:#00ff88;
-}
-
-#error{
-color:red;
-margin-top:10px;
-}
-</style>
-
+<title>THUAN AI KEY</title>
 </head>
 
-<body>
+<body style="background:black;color:cyan;text-align:center;font-family:monospace">
 
-<h2>TẠO KEY</h2>
-
-<select id="time">
-<option value="1">1 giờ</option>
-<option value="6">6 giờ</option>
-<option value="12">12 giờ</option>
-<option value="24">24 giờ</option>
-</select>
-
-<br>
+<h1>THUAN AI KEY GENERATOR</h1>
 
 <button onclick="createKey()">TẠO KEY</button>
 
-<div id="result"></div>
-<div id="error"></div>
+<h2 id="key"></h2>
 
 <script>
 
-const SERVER = "http://IP_SERVER:5000"; // sửa IP server
-
 function createKey(){
 
-document.getElementById("error").innerText=""
-document.getElementById("result").innerText="Đang tạo key..."
+fetch("http://127.0.0.1:5000/create_key")
 
-let hours = document.getElementById("time").value
+.then(res=>res.json())
 
-fetch(SERVER + "/create_key",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({hours:hours})
-})
-.then(res => res.json())
-.then(data => {
-
-document.getElementById("result").innerText =
-"KEY: " + data.key
-
-})
-.catch(err => {
-
-document.getElementById("error").innerText =
-"Lỗi kết nối server!"
-
-document.getElementById("result").innerText=""
-
+.then(data=>{
+document.getElementById("key").innerHTML="KEY: "+data.key
 })
 
 }
