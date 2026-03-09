@@ -81,38 +81,48 @@ Kết quả: <span id="ketqua">---</span>
 
 <script>
 
-let currentSession=null
-let daCoKetQua=false
+let lastSession = null
+
+function duDoan(md5){
+
+// ví dụ dự đoán đơn giản từ md5
+let last = md5.slice(-1)
+
+let num = parseInt(last,16)
+
+if(num % 2 == 0){
+return "TÀI"
+}else{
+return "XỈU"
+}
+
+}
 
 async function getData(){
 
 try{
 
-let res=await fetch("https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5")
+let res = await fetch("https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5")
 
-let data=await res.json()
+let data = await res.json()
 
-// nếu phiên mới
-if(currentSession!=data.session){
+// hiển thị phiên
+document.getElementById("phien").innerText = data.session
+document.getElementById("md5").innerText = data.md5
 
-currentSession=data.session
-daCoKetQua=false
+// nếu chưa có kết quả → dự đoán
+if(!data.dice){
 
-document.getElementById("phien").innerText=data.session
-document.getElementById("md5").innerText=data.md5
-
-// reset
 document.getElementById("dice").innerText="---"
 document.getElementById("tong").innerText="---"
 document.getElementById("ketqua").innerText="ĐANG CHỜ"
 
-// hiển thị dự đoán ngay khi bắt đầu phiên
-document.getElementById("predict").innerText=data.predict
+document.getElementById("predict").innerText = duDoan(data.md5)
 
 }
 
-// nếu API đã có xúc xắc = phiên kết thúc
-if(data.dice && !daCoKetQua){
+// nếu đã có kết quả thật
+if(data.dice){
 
 let d1=data.dice[0]
 let d2=data.dice[1]
@@ -133,13 +143,13 @@ document.getElementById("ketqua").innerHTML="<span class='green'>XỈU</span>"
 
 }
 
-daCoKetQua=true
+document.getElementById("predict").innerText="---"
 
 }
 
 }catch(e){
 
-console.log("API lỗi")
+console.log("API lỗi",e)
 
 }
 
