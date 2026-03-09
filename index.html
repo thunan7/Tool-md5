@@ -2,62 +2,73 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>THUAN MD5 TOOL VIP</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>THUAN MD5 PREDICT</title>
 
 <style>
 
 body{
-background:linear-gradient(135deg,#020617,#0f172a);
+margin:0;
 font-family:Arial;
+background:linear-gradient(160deg,#021024,#041f44,#051b2e);
 color:white;
-text-align:center;
+display:flex;
+justify-content:center;
 }
 
 .container{
-width:380px;
-margin:auto;
+width:90%;
+max-width:420px;
 margin-top:40px;
-background:#1e293b;
+background:#14233b;
 padding:25px;
-border-radius:20px;
-box-shadow:0 0 25px #000;
+border-radius:18px;
+box-shadow:0 0 25px rgba(0,0,0,0.6);
 }
 
-.title{
-font-size:30px;
-font-weight:bold;
-color:#22c55e;
+h2{
+text-align:center;
+color:#2ecc71;
 margin-bottom:20px;
 }
 
 .box{
-background:#0f172a;
-padding:12px;
-margin:10px;
+background:#0e1c33;
+padding:14px;
 border-radius:10px;
-font-size:18px;
+margin-top:10px;
+text-align:center;
+font-size:15px;
 }
 
-.pred{
-font-size:26px;
-color:#facc15;
+.value{
 font-weight:bold;
+font-size:17px;
+margin-top:4px;
 }
 
 button{
-
-background:#22c55e;
+margin-top:18px;
+width:100%;
+padding:13px;
 border:none;
-padding:12px 25px;
-font-size:18px;
 border-radius:10px;
+background:#2ecc71;
+font-size:16px;
+font-weight:bold;
+color:#fff;
 cursor:pointer;
-margin-top:10px;
+}
+
+button:hover{
+background:#27ae60;
 }
 
 .footer{
 margin-top:15px;
-color:#94a3b8;
+text-align:center;
+font-size:13px;
+color:#ccc;
 }
 
 </style>
@@ -67,39 +78,39 @@ color:#94a3b8;
 
 <div class="container">
 
-<div class="title">THUAN MD5 PREDICT</div>
+<h2>THUAN MD5 PREDICT</h2>
 
 <div class="box">
-Phiên hiện tại<br>
-<b id="phien">...</b>
+Phiên hiện tại
+<div class="value" id="phien">---</div>
 </div>
 
 <div class="box">
-MD5<br>
-<b id="md5">...</b>
+MD5
+<div class="value" id="md5">---</div>
 </div>
 
 <div class="box">
-Xúc xắc<br>
-<b id="dice">...</b>
+Xúc xắc
+<div class="value" id="dice">...</div>
 </div>
 
 <div class="box">
-Tổng<br>
-<b id="tong">...</b>
+Tổng
+<div class="value" id="tong">...</div>
 </div>
 
 <div class="box">
 Dự đoán phiên tiếp theo
-<div class="pred" id="predict">...</div>
+<div class="value" id="predict">...</div>
 </div>
 
 <div class="box">
 % Đọc cầu
-<b id="percent">...</b>%
+<div class="value" id="percent">0%</div>
 </div>
 
-<button onclick="loadData()">LẤY KẾT QUẢ</button>
+<button onclick="layKetQua()">LẤY KẾT QUẢ</button>
 
 <div class="footer">
 DEV: THUAN | KEY: 123
@@ -109,68 +120,41 @@ DEV: THUAN | KEY: 123
 
 <script>
 
-function md5ToDice(md5){
+async function layKetQua(){
 
-let d1=parseInt(md5.substring(0,2),16)%6+1
-let d2=parseInt(md5.substring(2,4),16)%6+1
-let d3=parseInt(md5.substring(4,6),16)%6+1
+try{
 
-return [d1,d2,d3]
+let res = await fetch("https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5");
 
-}
+let data = await res.json();
 
-function predictNext(md5){
+let phien = data.phien || "N/A";
+let md5 = data.md5 || "N/A";
 
-let total=0
+let d1 = data.dice?.[0] || 0;
+let d2 = data.dice?.[1] || 0;
+let d3 = data.dice?.[2] || 0;
 
-for(let i=0;i<md5.length;i++){
-total+=md5.charCodeAt(i)
-}
+let tong = d1 + d2 + d3;
 
-if(total%2==0){
-return "TÀI"
-}else{
-return "XỈU"
-}
+let predict = tong >= 11 ? "TÀI" : "XỈU";
 
-}
+let percent = Math.floor(Math.random()*40)+60;
 
-async function loadData(){
+document.getElementById("phien").innerText = phien;
+document.getElementById("md5").innerText = md5;
+document.getElementById("dice").innerText = d1+"-"+d2+"-"+d3;
+document.getElementById("tong").innerText = tong;
+document.getElementById("predict").innerText = predict;
+document.getElementById("percent").innerText = percent+"%";
 
-let api="https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5"
+}catch(e){
 
-let res=await fetch(api)
-
-let data=await res.json()
-
-let phien=data.session
-let md5=data.md5
-
-document.getElementById("phien").innerText=phien
-document.getElementById("md5").innerText=md5
-
-let dice=md5ToDice(md5)
-
-document.getElementById("dice").innerText=
-dice[0]+" - "+dice[1]+" - "+dice[2]
-
-let tong=dice[0]+dice[1]+dice[2]
-
-document.getElementById("tong").innerText=tong
-
-let kq=tong>=11?"TÀI":"XỈU"
-
-let pred=predictNext(md5)
-
-document.getElementById("predict").innerText=pred
-
-let percent=Math.floor(Math.random()*15)+85
-
-document.getElementById("percent").innerText=percent
+alert("Không lấy được dữ liệu API");
 
 }
 
-setInterval(loadData,5000)
+}
 
 </script>
 
