@@ -1,146 +1,194 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GAME RESULT VIEWER</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>API TOOL</title>
 
 <style>
+
 body{
-margin:0;
-font-family:Arial;
-background:#081c33;
+background:#0f172a;
 color:white;
-display:flex;
-justify-content:center;
-}
-
-.container{
-width:90%;
-max-width:420px;
-margin-top:40px;
-background:#0f1c35;
-padding:25px;
-border-radius:16px;
-}
-
-.title{
+font-family:Arial;
 text-align:center;
-font-size:22px;
-margin-bottom:20px;
-color:#27ff8a;
+margin:0;
 }
 
-.card{
-background:#0b1730;
+header{
+background:#020617;
 padding:15px;
-border-radius:10px;
-margin-top:10px;
-text-align:center;
+font-size:22px;
+color:#38bdf8;
 }
 
-.label{
-color:#aaa;
-font-size:14px;
+.box{
+background:#1e293b;
+padding:20px;
+margin:20px auto;
+border-radius:12px;
+width:320px;
 }
 
-.value{
-font-size:18px;
-font-weight:bold;
-margin-top:5px;
+input{
+padding:10px;
+width:80%;
+border:none;
+border-radius:6px;
 }
 
 button{
-margin-top:15px;
-width:100%;
-padding:14px;
+padding:10px 20px;
+margin-top:10px;
+background:#38bdf8;
 border:none;
-border-radius:10px;
-background:#27ff8a;
-color:black;
-font-weight:bold;
+border-radius:6px;
+color:white;
 }
 
-.loading{
-text-align:center;
-margin-top:10px;
-font-size:13px;
-color:#bbb;
+.data{
+font-size:18px;
+margin:10px;
+}
+
+.green{
+color:#22c55e;
+}
+
+.red{
+color:#ef4444;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
+<header>
+API TOOL
+</header>
 
-<div class="title">GAME RESULT</div>
+<div class="box" id="login">
 
-<div class="card">
-<div class="label">Phiên</div>
-<div class="value" id="phien">---</div>
+<h3>Nhập Key</h3>
+
+<input id="keyInput" placeholder="Nhập key">
+
+<br>
+
+<button onclick="checkKey()">Xác nhận</button>
+
+<p id="status"></p>
+
 </div>
 
-<div class="card">
-<div class="label">MD5</div>
-<div class="value" id="md5">---</div>
+<div class="box" id="tool" style="display:none">
+
+<h3>Dữ liệu API</h3>
+
+<div class="data">
+Phiên: <span id="phien">--</span>
 </div>
 
-<div class="card">
-<div class="label">Xúc xắc</div>
-<div class="value" id="dice">---</div>
+<div class="data">
+MD5: <span id="md5">--</span>
 </div>
 
-<div class="card">
-<div class="label">Tổng</div>
-<div class="value" id="tong">---</div>
+<div class="data">
+Dice: <span id="dice">--</span>
 </div>
 
-<button onclick="getData()">Cập nhật</button>
+<div class="data">
+Tổng: <span id="tong">--</span>
+</div>
 
-<div class="loading" id="loading"></div>
+<div class="data">
+Kết quả: <span id="ketqua">--</span>
+</div>
 
 </div>
 
 <script>
 
-async function getData(){
+const API_URL = "https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5"
 
-document.getElementById("loading").innerText="Đang tải..."
+const KEYS = [
+"FREE123",
+"VIP999",
+"ADMIN777"
+]
+
+function checkKey(){
+
+let key=document.getElementById("keyInput").value
+
+if(KEYS.includes(key)){
+
+document.getElementById("login").style.display="none"
+document.getElementById("tool").style.display="block"
+
+loadData()
+
+setInterval(loadData,5000)
+
+}else{
+
+document.getElementById("status").innerText="Key không hợp lệ"
+
+}
+
+}
+
+async function loadData(){
 
 try{
 
-let res = await fetch("API_URL_CUA_BAN")
+let res = await fetch(API_URL)
 
 let data = await res.json()
 
-let phien = data.phien
-let md5 = data.md5
-let d1 = data.dice[0]
-let d2 = data.dice[1]
-let d3 = data.dice[2]
+document.getElementById("phien").innerText=data.phien||"--"
+document.getElementById("md5").innerText=data.md5||"--"
 
-let tong = d1 + d2 + d3
+if(data.dice){
 
-document.getElementById("phien").innerText = phien
-document.getElementById("md5").innerText = md5
-document.getElementById("dice").innerText = d1+"-"+d2+"-"+d3
-document.getElementById("tong").innerText = tong
+let d1=data.dice[0]
+let d2=data.dice[1]
+let d3=data.dice[2]
 
-document.getElementById("loading").innerText=""
+let tong=d1+d2+d3
+
+document.getElementById("dice").innerText=d1+"-"+d2+"-"+d3
+document.getElementById("tong").innerText=tong
+
+if(tong>=11){
+
+document.getElementById("ketqua").innerHTML="<span class='red'>TÀI</span>"
+
+}else{
+
+document.getElementById("ketqua").innerHTML="<span class='green'>XỈU</span>"
+
+}
+
+}
 
 }catch(e){
 
-document.getElementById("loading").innerText="Không lấy được dữ liệu"
+console.log(e)
+
+document.getElementById("phien").innerText="API ERROR"
 
 }
 
 }
-
-setInterval(getData,10000)
 
 </script>
 
 </body>
+
 </html>
