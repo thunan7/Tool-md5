@@ -2,90 +2,83 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>THUAN MD5 PREDICT</title>
 
 <style>
 
 body{
 margin:0;
-font-family:Arial;
-background:linear-gradient(150deg,#021024,#042b55,#02182e);
+font-family:Arial, sans-serif;
+background:linear-gradient(160deg,#081c33,#020f24);
 color:white;
 display:flex;
 justify-content:center;
 }
 
 .container{
-width:92%;
+width:90%;
 max-width:420px;
 margin-top:35px;
-background:#13243f;
+background:#0f1c35;
 padding:25px;
 border-radius:18px;
-box-shadow:0 0 35px rgba(0,0,0,0.7);
+box-shadow:0 0 40px rgba(0,0,0,0.7);
 }
 
-h2{
+.title{
 text-align:center;
-color:#2ecc71;
+font-size:22px;
+color:#27ff8a;
 margin-bottom:20px;
+font-weight:bold;
 }
 
-.box{
-background:#0e1c33;
-padding:14px;
-border-radius:10px;
+.card{
+background:#0b1730;
+padding:15px;
+border-radius:12px;
 margin-top:10px;
 text-align:center;
-font-size:15px;
+}
+
+.label{
+font-size:14px;
+color:#aaa;
 }
 
 .value{
+font-size:19px;
 font-weight:bold;
-font-size:18px;
-margin-top:4px;
+margin-top:5px;
 }
 
 button{
 margin-top:18px;
 width:100%;
-padding:13px;
+padding:14px;
 border:none;
-border-radius:10px;
-background:#2ecc71;
+border-radius:12px;
+background:#27ff8a;
+color:#001c12;
 font-size:16px;
 font-weight:bold;
-color:#fff;
 cursor:pointer;
 }
 
 button:hover{
-background:#27ae60;
+background:#19d973;
+}
+
+.percent{
+color:#ffc107;
 }
 
 .footer{
 margin-top:15px;
 text-align:center;
-font-size:13px;
-color:#ccc;
-}
-
-.loading{
-text-align:center;
-margin-top:10px;
-font-size:14px;
-color:#aaa;
-}
-
-.history{
-margin-top:15px;
-background:#0e1c33;
-border-radius:10px;
-padding:10px;
-font-size:13px;
-max-height:120px;
-overflow:auto;
+font-size:12px;
+color:#777;
 }
 
 .chart{
@@ -101,67 +94,62 @@ border-radius:50%;
 margin:3px;
 }
 
-.tai{
-background:red;
-}
+.tai{background:#ff3b3b;}
+.xiu{background:#2e7dff;}
 
-.xiu{
-background:blue;
+.loading{
+text-align:center;
+font-size:13px;
+margin-top:10px;
+color:#bbb;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>THUAN MD5 PREDICT</h2>
+<div class="title">THUAN MD5 PREDICT</div>
 
-<div class="box">
-Phiên hiện tại
+<div class="card">
+<div class="label">Phiên hiện tại</div>
 <div class="value" id="phien">---</div>
 </div>
 
-<div class="box">
-MD5
+<div class="card">
+<div class="label">MD5</div>
 <div class="value" id="md5">---</div>
 </div>
 
-<div class="box">
-Xúc xắc
+<div class="card">
+<div class="label">Xúc xắc</div>
 <div class="value" id="dice">🎲 🎲 🎲</div>
 </div>
 
-<div class="box">
-Tổng
+<div class="card">
+<div class="label">Tổng</div>
 <div class="value" id="tong">---</div>
 </div>
 
-<div class="box">
-Dự đoán phiên tiếp theo
+<div class="card">
+<div class="label">Dự đoán phiên tiếp theo</div>
 <div class="value" id="predict">---</div>
 </div>
 
-<div class="box">
-% Đọc cầu
-<div class="value" id="percent">0%</div>
+<div class="card">
+<div class="label">% Đọc cầu</div>
+<div class="value percent" id="percent">0%</div>
 </div>
 
-<button onclick="layKetQua()">LẤY KẾT QUẢ</button>
+<button onclick="getData()">LẤY KẾT QUẢ</button>
 
 <div class="loading" id="loading"></div>
 
-<div class="history" id="history">
-Lịch sử cầu:
-</div>
-
 <div class="chart" id="chart"></div>
 
-<div class="footer">
-DEV: THUAN | KEY: 123
-</div>
+<div class="footer">DEV: THUAN</div>
 
 </div>
 
@@ -169,7 +157,7 @@ DEV: THUAN | KEY: 123
 
 let historyList=[]
 
-async function layKetQua(){
+async function getData(){
 
 document.getElementById("loading").innerText="Đang lấy dữ liệu..."
 
@@ -179,7 +167,7 @@ let res = await fetch("https://aims-discussions-nottingham-milton.trycloudflare.
 
 let data = await res.json()
 
-let phien = data.phien || "N/A"
+let phien = data.phien || Math.floor(Math.random()*100000)
 let md5 = data.md5 || "N/A"
 
 let d1 = data.dice?.[0] || Math.floor(Math.random()*6)+1
@@ -188,7 +176,7 @@ let d3 = data.dice?.[2] || Math.floor(Math.random()*6)+1
 
 let tong = d1+d2+d3
 
-let predict = tong >= 11 ? "TÀI 🔴" : "XỈU 🔵"
+let predict = tong >= 11 ? "TÀI" : "XỈU"
 
 let percent = Math.floor(Math.random()*40)+60
 
@@ -201,25 +189,23 @@ document.getElementById("percent").innerText = percent+"%"
 
 document.getElementById("loading").innerText=""
 
-updateHistory(predict)
+updateChart(predict)
 
-}catch(e){
+}catch{
 
-document.getElementById("loading").innerText="Không lấy được dữ liệu API"
-
-}
+document.getElementById("loading").innerText="API lỗi hoặc server tắt"
 
 }
 
-function updateHistory(result){
+}
+
+function updateChart(result){
 
 historyList.unshift(result)
 
-if(historyList.length>20){
+if(historyList.length>25){
 historyList.pop()
 }
-
-document.getElementById("history").innerText="Lịch sử cầu:\n"+historyList.join(" | ")
 
 drawChart()
 
@@ -236,7 +222,7 @@ let dot=document.createElement("div")
 
 dot.classList.add("dot")
 
-if(r.includes("TÀI")){
+if(r=="TÀI"){
 dot.classList.add("tai")
 }else{
 dot.classList.add("xiu")
@@ -248,17 +234,13 @@ chart.appendChild(dot)
 
 }
 
-/* Auto update mỗi 8 giây */
+/* Auto update */
 
 setInterval(function(){
-
-layKetQua()
-
-},8000)
+getData()
+},10000)
 
 </script>
 
 </body>
 </html>
-
-
