@@ -13,19 +13,40 @@ font-family:Arial;
 text-align:center;
 }
 
-button{
-padding:15px 30px;
-font-size:20px;
-background:#22c55e;
-border:none;
-border-radius:10px;
-color:white;
+h1{
+margin-top:30px;
 }
 
-#key{
+button{
+padding:12px 25px;
+font-size:18px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+select{
+padding:10px;
+font-size:16px;
+border-radius:6px;
+}
+
+table{
+width:90%;
+margin:auto;
 margin-top:30px;
-font-size:25px;
-color:#facc15;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #444;
+padding:10px;
+}
+
+th{
+background:#1e293b;
 }
 
 </style>
@@ -36,33 +57,112 @@ color:#facc15;
 
 <h1>ADMIN TOOL KEY</h1>
 
+<h3>Tạo Key</h3>
+
+<select id="hours">
+<option value="1">1 giờ</option>
+<option value="6">6 giờ</option>
+<option value="12">12 giờ</option>
+<option value="24">24 giờ</option>
+<option value="72">3 ngày</option>
+</select>
+
+<br><br>
+
 <button onclick="createKey()">TẠO KEY</button>
 
-<h2 id="key">KEY:</h2>
+<h2 id="result">KEY:</h2>
+
+<h2>Danh sách key</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>KEY</th>
+<th>IP</th>
+<th>DEVICE</th>
+<th>EXPIRE</th>
+</tr>
+</thead>
+
+<tbody id="table"></tbody>
+
+</table>
 
 <script>
 
-const API="https://aims-discussions-nottingham-milton.trycloudflare.com"
+const API="http://127.0.0.1:5000"
+
 
 async function createKey(){
 
-document.getElementById("key").innerHTML="ĐANG TẠO KEY..."
+let hours=document.getElementById("hours").value
+
+document.getElementById("result").innerHTML="ĐANG TẠO KEY..."
 
 try{
 
-let r=await fetch(API+"/create_key")
+let r=await fetch(API+"/create_key",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({hours:hours})
+})
 
 let data=await r.json()
 
-document.getElementById("key").innerHTML="KEY: "+data.key
+document.getElementById("result").innerHTML="KEY: "+data.key
+
+loadKeys()
 
 }catch{
 
-document.getElementById("key").innerHTML="LỖI SERVER"
+document.getElementById("result").innerHTML="LỖI SERVER"
 
 }
 
 }
+
+
+async function loadKeys(){
+
+try{
+
+let r=await fetch(API+"/list_key")
+
+let data=await r.json()
+
+let html=""
+
+data.forEach(k=>{
+
+let date=new Date(k.expire*1000)
+
+html+=`
+<tr>
+<td>${k.key}</td>
+<td>${k.ip||""}</td>
+<td>${k.device||""}</td>
+<td>${date.toLocaleString()}</td>
+</tr>
+`
+
+})
+
+document.getElementById("table").innerHTML=html
+
+}catch{
+
+document.getElementById("table").innerHTML="Không tải được dữ liệu"
+
+}
+
+}
+
+
+loadKeys()
+
+setInterval(loadKeys,5000)
 
 </script>
 
