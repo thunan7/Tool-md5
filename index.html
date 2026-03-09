@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Tool Tài Xỉu MD5</title>
 
 <style>
@@ -81,14 +80,12 @@ Kết quả: <span id="ketqua">---</span>
 
 <script>
 
-let lastSession = null
-
 function duDoan(md5){
 
-// ví dụ dự đoán đơn giản từ md5
-let last = md5.slice(-1)
+if(!md5) return "--"
 
-let num = parseInt(last,16)
+let last = md5.slice(-1)
+let num = last.charCodeAt(0)
 
 if(num % 2 == 0){
 return "TÀI"
@@ -106,41 +103,41 @@ let res = await fetch("https://aims-discussions-nottingham-milton.trycloudflare.
 
 let data = await res.json()
 
-// hiển thị phiên
-document.getElementById("phien").innerText = data.session
-document.getElementById("md5").innerText = data.md5
+let phien = data.phien
+let md5 = data.md5_raw
+let trangThai = data.betting_info.trang_thai
 
-// nếu chưa có kết quả → dự đoán
-if(!data.dice){
+document.getElementById("phien").innerText = phien
+document.getElementById("md5").innerText = md5
+
+// nếu đang cược (chưa có kết quả)
+
+if(trangThai !== "RESULT"){
 
 document.getElementById("dice").innerText="---"
 document.getElementById("tong").innerText="---"
 document.getElementById("ketqua").innerText="ĐANG CHỜ"
 
-document.getElementById("predict").innerText = duDoan(data.md5)
+document.getElementById("predict").innerText = duDoan(md5)
 
 }
 
-// nếu đã có kết quả thật
-if(data.dice){
+// nếu đã có kết quả
 
-let d1=data.dice[0]
-let d2=data.dice[1]
-let d3=data.dice[2]
+if(trangThai === "RESULT"){
 
-let tong=d1+d2+d3
+let d1 = data.xuc_xac_1
+let d2 = data.xuc_xac_2
+let d3 = data.xuc_xac_3
+let tong = data.tong
 
-document.getElementById("dice").innerText=d1+"-"+d2+"-"+d3
-document.getElementById("tong").innerText=tong
+document.getElementById("dice").innerText = d1+"-"+d2+"-"+d3
+document.getElementById("tong").innerText = tong
 
-if(tong>=11){
-
+if(data.ket_qua.toLowerCase().includes("tài")){
 document.getElementById("ketqua").innerHTML="<span class='red'>TÀI</span>"
-
 }else{
-
 document.getElementById("ketqua").innerHTML="<span class='green'>XỈU</span>"
-
 }
 
 document.getElementById("predict").innerText="---"
