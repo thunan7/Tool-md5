@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tool Tài Xỉu MD5</title>
+<title>ADMIN TOOL KEY</title>
 
 <style>
 
@@ -18,143 +17,133 @@ padding:20px;
 .box{
 background:#1e293b;
 padding:20px;
-border-radius:12px;
-max-width:380px;
-margin:auto;
+border-radius:10px;
+margin:20px;
 }
 
-.data{
-margin:10px;
+button{
+padding:10px 20px;
+border:none;
+background:#22c55e;
+color:white;
+font-size:16px;
+border-radius:6px;
+margin-top:10px;
+}
+
+select{
+padding:10px;
+font-size:16px;
+}
+
+#result{
+margin-top:15px;
+color:#22c55e;
 font-size:18px;
 }
 
-.red{
-color:#ef4444;
-font-weight:bold;
-}
-
-.green{
-color:#22c55e;
-font-weight:bold;
-}
-
-.predict{
-font-size:22px;
-margin-top:15px;
+.user{
+background:#334155;
+padding:10px;
+margin:5px;
+border-radius:5px;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<h2>🎲 TOOL TÀI XỈU MD5</h2>
+<h1>ADMIN KEY TOOL</h1>
 
 <div class="box">
 
-<div class="data">
-Phiên: <span id="phien">---</span>
-</div>
+<h2>TẠO KEY</h2>
 
-<div class="data">
-MD5: <span id="md5">---</span>
-</div>
+<select id="time">
 
-<div class="data">
-Dice: <span id="dice">---</span>
-</div>
+<option value="1">1 Giờ</option>
+<option value="6">6 Giờ</option>
+<option value="12">12 Giờ</option>
+<option value="24">24 Giờ</option>
 
-<div class="data">
-Tổng: <span id="tong">---</span>
-</div>
+</select>
 
-<div class="data">
-Kết quả: <span id="ketqua">---</span>
-</div>
+<br>
 
-<div class="predict">
-🔮 Dự đoán: <span id="predict">---</span>
-</div>
+<button onclick="createKey()">TẠO KEY</button>
+
+<div id="result"></div>
 
 </div>
+
+<div class="box">
+
+<h2>NGƯỜI ĐANG DÙNG TOOL</h2>
+
+<button onclick="loadUsers()">TẢI DANH SÁCH</button>
+
+<div id="users"></div>
+
+</div>
+
 
 <script>
 
-function duDoan(md5){
+SERVER = "http://IP_SERVER:5000"
 
-if(!md5) return "--"
+function createKey(){
 
-let last = md5.slice(-1)
-let num = last.charCodeAt(0)
+let hours = document.getElementById("time").value
 
-if(num % 2 == 0){
-return "TÀI"
-}else{
-return "XỈU"
-}
+fetch(SERVER + "/create_key",{
 
-}
+method:"POST",
 
-async function getData(){
+headers:{
+"Content-Type":"application/json"
+},
 
-try{
+body:JSON.stringify({
+hours:hours
+})
 
-let res = await fetch("https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5")
+})
+.then(res=>res.json())
+.then(data=>{
 
-let data = await res.json()
+document.getElementById("result").innerHTML =
+"KEY: <b>"+data.key+"</b>"
 
-let phien = data.phien
-let md5 = data.md5_raw
-let trangThai = data.betting_info.trang_thai
-
-document.getElementById("phien").innerText = phien
-document.getElementById("md5").innerText = md5
-
-// nếu đang cược (chưa có kết quả)
-
-if(trangThai !== "RESULT"){
-
-document.getElementById("dice").innerText="---"
-document.getElementById("tong").innerText="---"
-document.getElementById("ketqua").innerText="ĐANG CHỜ"
-
-document.getElementById("predict").innerText = duDoan(md5)
+})
 
 }
 
-// nếu đã có kết quả
+function loadUsers(){
 
-if(trangThai === "RESULT"){
+fetch(SERVER + "/users")
+.then(res=>res.json())
+.then(data=>{
 
-let d1 = data.xuc_xac_1
-let d2 = data.xuc_xac_2
-let d3 = data.xuc_xac_3
-let tong = data.tong
+let html=""
 
-document.getElementById("dice").innerText = d1+"-"+d2+"-"+d3
-document.getElementById("tong").innerText = tong
+data.forEach(u=>{
 
-if(data.ket_qua.toLowerCase().includes("tài")){
-document.getElementById("ketqua").innerHTML="<span class='red'>TÀI</span>"
-}else{
-document.getElementById("ketqua").innerHTML="<span class='green'>XỈU</span>"
-}
+html+=`
+<div class="user">
+IP: ${u.ip} <br>
+Device: ${u.device}
+</div>
+`
 
-document.getElementById("predict").innerText="---"
+})
 
-}
+document.getElementById("users").innerHTML=html
 
-}catch(e){
-
-console.log("API lỗi",e)
+})
 
 }
-
-}
-
-getData()
-
-setInterval(getData,2000)
 
 </script>
 
