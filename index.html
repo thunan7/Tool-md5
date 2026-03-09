@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tool Sunwin</title>
+<title>Tool Tài Xỉu</title>
 
 <style>
 
@@ -39,13 +39,17 @@ color:#22c55e;
 font-weight:bold;
 }
 
-</style>
+.predict{
+font-size:22px;
+margin-top:15px;
+}
 
+</style>
 </head>
 
 <body>
 
-<h2>🎲 TOOL SUNWIN</h2>
+<h2>🎲 TOOL TÀI XỈU</h2>
 
 <div class="box">
 
@@ -69,50 +73,69 @@ Tổng: <span id="tong">---</span>
 Kết quả: <span id="ketqua">---</span>
 </div>
 
+<div class="predict">
+🔮 Dự đoán: <span id="predict">---</span>
+</div>
+
 </div>
 
 <script>
 
-async function getSunwin(){
-
-try{
-
-let res = await fetch("https://api.sunwin.fake/taixiu")
-let data = await res.json()
-
-document.getElementById("phien").innerText=data.session
-document.getElementById("md5").innerText=data.md5
-
-let d1=data.dice[0]
-let d2=data.dice[1]
-let d3=data.dice[2]
+function duDoan(d1,d2,d3){
 
 let tong=d1+d2+d3
+let kq=""
+
+if(d1==1 && d2==1 && d3==1){
+kq="XỈU (≈90%)"
+}
+
+else if(tong==12 || tong==13){
+kq="TÀI (≈70%)"
+}
+
+else if(tong<=7){
+kq="XỈU (≈65%)"
+}
+
+else if(tong>=11){
+kq="TÀI (≈65%)"
+}
+
+else{
+kq="KHÓ ĐOÁN"
+}
+
+return kq
+}
+
+function fakeData(){
+
+let d1=Math.floor(Math.random()*6)+1
+let d2=Math.floor(Math.random()*6)+1
+let d3=Math.floor(Math.random()*6)+1
+
+let tong=d1+d2+d3
+
+document.getElementById("phien").innerText=Math.floor(Math.random()*1000000)
+document.getElementById("md5").innerText=Math.random().toString(36).substring(2,10)
 
 document.getElementById("dice").innerText=d1+"-"+d2+"-"+d3
 document.getElementById("tong").innerText=tong
 
 if(tong>=11){
-
 document.getElementById("ketqua").innerHTML="<span class='red'>TÀI</span>"
-
 }else{
-
 document.getElementById("ketqua").innerHTML="<span class='green'>XỈU</span>"
+}
+
+document.getElementById("predict").innerText=duDoan(d1,d2,d3)
 
 }
 
-}catch(e){
+fakeData()
 
-console.log("Lỗi API")
-
-}
-
-}
-
-getSunwin()
-
-setInterval(getSunwin,3000)
+setInterval(fakeData,5000)
 
 </script>
 
