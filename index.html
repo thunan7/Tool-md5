@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tool Tài Xỉu</title>
+<title>Tool Tài Xỉu MD5</title>
 
 <style>
 
@@ -19,8 +19,8 @@ padding:20px;
 .box{
 background:#1e293b;
 padding:20px;
-border-radius:10px;
-max-width:350px;
+border-radius:12px;
+max-width:380px;
 margin:auto;
 }
 
@@ -49,7 +49,7 @@ margin-top:15px;
 
 <body>
 
-<h2>🎲 TOOL TÀI XỈU</h2>
+<h2>🎲 TOOL TÀI XỈU MD5</h2>
 
 <div class="box">
 
@@ -81,61 +81,73 @@ Kết quả: <span id="ketqua">---</span>
 
 <script>
 
-function duDoan(d1,d2,d3){
+let currentSession=null
+let daCoKetQua=false
+
+async function getData(){
+
+try{
+
+let res=await fetch("https://aims-discussions-nottingham-milton.trycloudflare.com/api/txmd5")
+
+let data=await res.json()
+
+// nếu phiên mới
+if(currentSession!=data.session){
+
+currentSession=data.session
+daCoKetQua=false
+
+document.getElementById("phien").innerText=data.session
+document.getElementById("md5").innerText=data.md5
+
+// reset
+document.getElementById("dice").innerText="---"
+document.getElementById("tong").innerText="---"
+document.getElementById("ketqua").innerText="ĐANG CHỜ"
+
+// hiển thị dự đoán ngay khi bắt đầu phiên
+document.getElementById("predict").innerText=data.predict
+
+}
+
+// nếu API đã có xúc xắc = phiên kết thúc
+if(data.dice && !daCoKetQua){
+
+let d1=data.dice[0]
+let d2=data.dice[1]
+let d3=data.dice[2]
 
 let tong=d1+d2+d3
-let kq=""
-
-if(d1==1 && d2==1 && d3==1){
-kq="XỈU (≈90%)"
-}
-
-else if(tong==12 || tong==13){
-kq="TÀI (≈70%)"
-}
-
-else if(tong<=7){
-kq="XỈU (≈65%)"
-}
-
-else if(tong>=11){
-kq="TÀI (≈65%)"
-}
-
-else{
-kq="KHÓ ĐOÁN"
-}
-
-return kq
-}
-
-function fakeData(){
-
-let d1=Math.floor(Math.random()*6)+1
-let d2=Math.floor(Math.random()*6)+1
-let d3=Math.floor(Math.random()*6)+1
-
-let tong=d1+d2+d3
-
-document.getElementById("phien").innerText=Math.floor(Math.random()*1000000)
-document.getElementById("md5").innerText=Math.random().toString(36).substring(2,10)
 
 document.getElementById("dice").innerText=d1+"-"+d2+"-"+d3
 document.getElementById("tong").innerText=tong
 
 if(tong>=11){
+
 document.getElementById("ketqua").innerHTML="<span class='red'>TÀI</span>"
+
 }else{
+
 document.getElementById("ketqua").innerHTML="<span class='green'>XỈU</span>"
-}
-
-document.getElementById("predict").innerText=duDoan(d1,d2,d3)
 
 }
 
-fakeData()
+daCoKetQua=true
 
-setInterval(fakeData,5000)
+}
+
+}catch(e){
+
+console.log("API lỗi")
+
+}
+
+}
+
+getData()
+
+setInterval(getData,2000)
 
 </script>
 
