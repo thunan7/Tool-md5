@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ADMIN TOOL</title>
+<title>ADMIN TOOL KEY</title>
 
 <style>
 
@@ -14,29 +14,18 @@ text-align:center;
 }
 
 button{
-padding:12px 25px;
-font-size:18px;
-border:none;
-border-radius:8px;
+padding:15px 30px;
+font-size:20px;
 background:#22c55e;
+border:none;
+border-radius:10px;
 color:white;
 }
 
-select{
-padding:10px;
-font-size:18px;
-}
-
-table{
-width:90%;
-margin:auto;
+#key{
 margin-top:30px;
-border-collapse:collapse;
-}
-
-td,th{
-border:1px solid #444;
-padding:10px;
+font-size:25px;
+color:#facc15;
 }
 
 </style>
@@ -47,105 +36,33 @@ padding:10px;
 
 <h1>ADMIN TOOL KEY</h1>
 
-<h3>Tạo Key</h3>
-
-<select id="hours">
-<option value="1">1 giờ</option>
-<option value="6">6 giờ</option>
-<option value="12">12 giờ</option>
-<option value="24">24 giờ</option>
-<option value="72">3 ngày</option>
-</select>
-
-<br><br>
-
 <button onclick="createKey()">TẠO KEY</button>
 
-<h2 id="result"></h2>
-
-<h2>Danh sách key</h2>
-
-<table>
-
-<thead>
-<tr>
-<th>KEY</th>
-<th>IP</th>
-<th>DEVICE</th>
-<th>EXPIRE</th>
-</tr>
-</thead>
-
-<tbody id="table"></tbody>
-
-</table>
+<h2 id="key">KEY:</h2>
 
 <script>
 
 const API="https://aims-discussions-nottingham-milton.trycloudflare.com"
 
-
 async function createKey(){
 
-let hours=document.getElementById("hours").value
-
-document.getElementById("result").innerHTML="ĐANG TẠO..."
+document.getElementById("key").innerHTML="ĐANG TẠO KEY..."
 
 try{
 
-let r=await fetch(API+"/create_key",{
-method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({hours:hours})
-})
+let r=await fetch(API+"/create_key")
 
 let data=await r.json()
 
-document.getElementById("result").innerHTML="KEY: "+data.key
-
-loadKeys()
+document.getElementById("key").innerHTML="KEY: "+data.key
 
 }catch{
 
-document.getElementById("result").innerHTML="LỖI SERVER"
+document.getElementById("key").innerHTML="LỖI SERVER"
 
 }
 
 }
-
-
-async function loadKeys(){
-
-let r=await fetch(API+"/list_key")
-
-let data=await r.json()
-
-let html=""
-
-data.forEach(k=>{
-
-html+=`
-
-<tr>
-
-<td>${k.key}</td>
-<td>${k.ip||""}</td>
-<td>${k.device||""}</td>
-<td>${new Date(k.expire*1000).toLocaleString()}</td>
-
-</tr>
-
-`
-
-})
-
-document.getElementById("table").innerHTML=html
-
-}
-
-loadKeys()
-
-setInterval(loadKeys,5000)
 
 </script>
 
