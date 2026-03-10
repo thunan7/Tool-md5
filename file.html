@@ -1,242 +1,122 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Sunwin</title>
+
+<meta charset="UTF-8">
+<title>TX TOOL ADMIN</title>
 
 <style>
-:root{
-  --accent:#00ccff;
-  --bg:#000814;
-  --bg2:#001a26;
-  --text:#eaf6ff;
-  --panel:#0b2230cc;
-}
-
-*{box-sizing:border-box}
 
 body{
-  margin:0;
-  background:linear-gradient(180deg,var(--bg2),var(--bg));
-  overflow:hidden;
-  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  color:var(--text);
+background:#0f172a;
+color:white;
+font-family:Arial;
+text-align:center;
+padding:40px;
 }
 
-iframe{
-  position:fixed;
-  inset:0;
-  width:100vw;
-  height:100vh;
-  border:none;
+.box{
+background:#1e293b;
+padding:30px;
+border-radius:10px;
+width:300px;
+margin:auto;
 }
 
-.pill{
-  position:fixed;
-  top:10px;
-  padding:6px 12px;
-  border-radius:10px;
-  font-weight:700;
-  z-index:10000;
-  background:var(--accent);
-  color:#001018;
-  box-shadow:0 6px 18px rgba(0,204,255,.25);
-  user-select:none;
+input,select,button{
+
+width:100%;
+padding:10px;
+margin:10px 0;
+border:none;
+border-radius:5px;
+
 }
 
-#logout{left:10px;cursor:pointer}
-#balance{right:10px}
-
-#botWrap{
-  position:fixed;
-  top:50px;
-  left:50px;
-  z-index:9999;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  touch-action:none;
-  cursor:grab;
+button{
+background:#22c55e;
+color:white;
+font-weight:bold;
+cursor:pointer;
 }
 
-#botWrap:active{cursor:grabbing}
-
-#robot{
-  width:120px;
-  height:auto;
-  user-select:none;
-  pointer-events:none;
+button:hover{
+background:#16a34a;
 }
 
-#botPanel{
-  min-width:260px;
-  max-width:min(70vw,420px);
-  background:var(--panel);
-  backdrop-filter:blur(6px);
-  border:1px solid #0ea5b7;
-  border-radius:12px;
-  padding:10px 12px;
-  color:var(--text);
-  box-shadow:0 8px 24px rgba(0,0,0,.35),
-  inset 0 0 0 1px rgba(255,255,255,.04);
-}
-
-#botHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:6px;
-}
-
-.badge{
-  background:#012734;
-  border:1px solid #0ea5b7;
-  padding:2px 8px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-}
-
-#statusDot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:#aaa;
-  margin-left:6px;
-}
-
-#summaryLine{
-  font-weight:800;
-  font-size:16px;
-  margin:6px 0 8px;
-}
-
-#botBody p{
-  margin:4px 0;
-  font-size:14px;
-}
-
-#progressBarWrap{
-  position:relative;
-  height:6px;
-  background:#0a2a38;
-  border-radius:999px;
-  overflow:hidden;
-  margin-top:8px;
-}
-
-#progressBar{
-  position:absolute;
-  inset:0 100% 0 0;
-  background:linear-gradient(90deg,#22d3ee,#0ea5b7);
-}
-
-#updatedAt{
-  margin-top:6px;
-  font-size:12px;
-  opacity:.8;
-}
-
-#hint{
-  position:absolute;
-  top:-24px;
-  left:0;
-  background:#03202b;
-  border:1px solid #075b6b;
-  color:#b9ecff;
-  padding:2px 8px;
-  border-radius:8px;
-  font-size:12px;
+#result{
+margin-top:20px;
+color:#22c55e;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div id="logout" class="pill" onclick="window.location.href='index.html'">
-Đăng xuất
-</div>
+<div class="box">
 
-<div id="balance" class="pill">0đ</div>
+<h2>ADMIN CREATE KEY</h2>
 
-<div id="botWrap">
+<input id="key" placeholder="Nhập key">
 
-<div id="hint">Kéo giữ để di chuyển</div>
+<select id="hours">
 
-<img id="robot"
-src="https://i.postimg.cc/63bdy9D9/robotics-1.gif"
-alt="Robot"/>
+<option value="1">1 giờ</option>
+<option value="6">6 giờ</option>
+<option value="12">12 giờ</option>
+<option value="24">24 giờ</option>
+<option value="48">2 ngày</option>
+<option value="72">3 ngày</option>
 
-<div id="botPanel">
+</select>
 
-<div id="botHeader">
-<div class="badge">BOT DỰ ĐOÁN</div>
+<button onclick="createKey()">Tạo Key</button>
 
-<div style="display:flex;align-items:center;gap:6px">
-<span style="font-size:12px">Trạng thái</span>
-<div id="statusDot"></div>
-</div>
+<p id="result"></p>
 
 </div>
-
-<div id="summaryLine">Đang tải…</div>
-
-<div id="botBody">
-
-<p>Tỉ lệ: <span id="ty_le_thanh_cong">…</span></p>
-
-<p>Độ tin cậy: <span id="ty_le_thanh_cong">…</span></p>
-
-<p>Dự đoán: <span id="duDoan">…</span></p>
-
-<p>Phiên: <span id="phien">…</span></p>
-
-<div id="progressBarWrap">
-<div id="progressBar"></div>
-</div>
-
-<div id="updatedAt">Đang tải dữ liệu…</div>
-
-</div>
-</div>
-</div>
-
-<iframe src="https://web.sunwin.lt/?affId=Sunwin"></iframe>
 
 <script>
 
-const API_URL="https://sunlaymaynkx.hacksieucap.pro/ttsunver2"
+function createKey(){
 
-async function pull(){
+let key=document.getElementById("key").value
+let hours=document.getElementById("hours").value
 
-try{
+fetch("http://127.0.0.1:5000/create",{
 
-const r=await fetch(API_URL)
+method:"POST",
 
-const j=await r.json()
+headers:{
+"Content-Type":"application/json"
+},
 
-document.getElementById("duDoan").innerText=j.du_doan_van_sau
+body:JSON.stringify({
 
-document.getElementById("phien").innerText=Number(j.phien)+1
+key:key,
+hours:hours
 
-document.getElementById("ty_le_thanh_cong").innerText=j.ty_le_thanh_cong
+})
 
-document.getElementById("updatedAt").innerText="Cập nhật "+new Date().toLocaleTimeString()
+})
 
-}catch(e){
+.then(res=>res.json())
 
-document.getElementById("updatedAt").innerText="Lỗi tải dữ liệu"
+.then(data=>{
+
+document.getElementById("result").innerHTML="Đã tạo key: "+key
+
+})
+
+.catch(()=>{
+
+document.getElementById("result").innerHTML="Lỗi kết nối server"
+
+})
 
 }
-
-}
-
-pull()
-
-setInterval(pull,8000)
 
 </script>
 
