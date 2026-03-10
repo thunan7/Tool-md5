@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>TX TOOL ADMIN</title>
@@ -8,27 +8,27 @@
 
 body{
 background:#0f172a;
-font-family:Arial;
 color:white;
+font-family:Arial;
 text-align:center;
 padding:40px;
 }
 
 .box{
 background:#1e293b;
-width:360px;
-margin:auto;
 padding:30px;
-border-radius:12px;
+border-radius:10px;
+width:320px;
+margin:auto;
 }
 
 input,select,button{
 
 width:100%;
-padding:12px;
-margin-top:12px;
-border-radius:6px;
+padding:10px;
+margin:10px 0;
 border:none;
+border-radius:5px;
 
 }
 
@@ -36,29 +36,22 @@ button{
 background:#22c55e;
 color:white;
 font-weight:bold;
-cursor:pointer;
-}
-
-button:hover{
-background:#16a34a;
 }
 
 #result{
-margin-top:20px;
-font-weight:bold;
+margin-top:15px;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="box">
 
-<h2>TX TOOL ADMIN</h2>
+<h2>ADMIN CREATE KEY</h2>
 
-<input id="key" placeholder="Nhập key cần tạo">
+<input id="key" placeholder="Nhập key">
 
 <select id="hours">
 
@@ -67,11 +60,10 @@ font-weight:bold;
 <option value="12">12 giờ</option>
 <option value="24">24 giờ</option>
 <option value="72">3 ngày</option>
-<option value="168">7 ngày</option>
 
 </select>
 
-<button onclick="createKey()">Tạo Key</button>
+<button onclick="create()">Tạo Key</button>
 
 <p id="result"></p>
 
@@ -81,17 +73,10 @@ font-weight:bold;
 
 const SERVER="http://127.0.0.1:5000"
 
-function createKey(){
+function create(){
 
 let key=document.getElementById("key").value
 let hours=document.getElementById("hours").value
-
-if(key==""){
-
-document.getElementById("result").innerHTML="Nhập key trước!"
-return
-
-}
 
 fetch(SERVER+"/create",{
 
@@ -110,17 +95,17 @@ hours:hours
 
 })
 
-.then(res=>res.json())
+.then(r=>r.json())
 
 .then(data=>{
 
 if(data.status=="created"){
 
-document.getElementById("result").innerHTML="✅ Đã tạo key: "+data.key
+document.getElementById("result").innerHTML="Đã tạo key: "+data.key
 
 }else{
 
-document.getElementById("result").innerHTML="❌ Lỗi tạo key"
+document.getElementById("result").innerHTML="Lỗi tạo key"
 
 }
 
@@ -128,7 +113,7 @@ document.getElementById("result").innerHTML="❌ Lỗi tạo key"
 
 .catch(()=>{
 
-document.getElementById("result").innerHTML="❌ Không kết nối server"
+document.getElementById("result").innerHTML="Server lỗi"
 
 })
 
