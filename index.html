@@ -1,168 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>ADMIN TOOL KEY</title>
-
+<meta charset="utf-8">
+<title>VIP TOOL</title>
 <style>
-
-body{
-background:#0f172a;
-color:white;
-font-family:Arial;
-text-align:center;
-}
-
-h1{
-margin-top:30px;
-}
-
-button{
-padding:12px 25px;
-font-size:18px;
-border:none;
-border-radius:8px;
-background:#22c55e;
-color:white;
-cursor:pointer;
-}
-
-select{
-padding:10px;
-font-size:16px;
-border-radius:6px;
-}
-
-table{
-width:90%;
-margin:auto;
-margin-top:30px;
-border-collapse:collapse;
-}
-
-th,td{
-border:1px solid #444;
-padding:10px;
-}
-
-th{
-background:#1e293b;
-}
-
+body{background:#0f172a;color:white;font-family:Arial;text-align:center;padding-top:60px}
+.box{background:#1e293b;padding:25px;border-radius:15px;width:300px;margin:auto}
+input{width:90%;padding:12px;border:none;border-radius:8px;margin:10px}
+button{padding:12px 20px;border:none;border-radius:8px;background:#22c55e;color:white}
 </style>
-
 </head>
 
 <body>
 
-<h1>ADMIN TOOL KEY</h1>
+<div class="box" id="login">
+<h2>🔐 NHẬP KEY</h2>
+<input id="key" placeholder="Nhập key...">
+<button onclick="checkKey()">Đăng nhập</button>
+<p id="msg"></p>
+</div>
 
-<h3>Tạo Key</h3>
-
-<select id="hours">
-<option value="1">1 giờ</option>
-<option value="6">6 giờ</option>
-<option value="12">12 giờ</option>
-<option value="24">24 giờ</option>
-<option value="72">3 ngày</option>
-</select>
-
-<br><br>
-
-<button onclick="createKey()">TẠO KEY</button>
-
-<h2 id="result">KEY:</h2>
-
-<h2>Danh sách key</h2>
-
-<table>
-
-<thead>
-<tr>
-<th>KEY</th>
-<th>IP</th>
-<th>DEVICE</th>
-<th>EXPIRE</th>
-</tr>
-</thead>
-
-<tbody id="table"></tbody>
-
-</table>
+<div id="tool" style="display:none;">
+<h1>🔥 TOOL VIP</h1>
+<p>Key hợp lệ 😎</p>
+<button onclick="alert('Chức năng demo')">START</button>
+</div>
 
 <script>
 
-const API="http://127.0.0.1:5000"
+// Chuỗi bí mật (phải giống file tạo key)
+const SECRET = "VIPTOOL";
 
+// Giải mã key
+function decodeKey(k){
+    try{
+        let raw = atob(k);          // Base64 -> chuỗi gốc
+        let parts = raw.split("|"); // Tách dữ liệu
 
-async function createKey(){
+        if(parts.length !== 3) return null;
 
-let hours=document.getElementById("hours").value
-
-document.getElementById("result").innerHTML="ĐANG TẠO KEY..."
-
-try{
-
-let r=await fetch(API+"/create_key",{
-method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({hours:hours})
-})
-
-let data=await r.json()
-
-document.getElementById("result").innerHTML="KEY: "+data.key
-
-loadKeys()
-
-}catch{
-
-document.getElementById("result").innerHTML="LỖI SERVER"
-
+        return {
+            secret: parts[0],
+            exp: parseInt(parts[1]),
+            check: parts[2]
+        };
+    }catch{
+        return null;
+    }
 }
 
+// Check key
+function checkKey(){
+
+    let k = document.getElementById("key").value.trim();
+    let data = decodeKey(k);
+
+    if(!data){
+        msg.innerText="❌ Key không hợp lệ";
+        return;
+    }
+
+    if(data.secret !== SECRET){
+        msg.innerText="❌ Key giả";
+        return;
+    }
+
+    let now = Date.now();
+
+    if(now > data.exp){
+        msg.innerText="⏱️ Key đã hết hạn";
+        return;
+    }
+
+    localStorage.setItem("vip_key", k);
+
+    login.style.display="none";
+    tool.style.display="block";
 }
 
+// Tự đăng nhập
+function autoLogin(){
 
-async function loadKeys(){
+    let k = localStorage.getItem("vip_key");
+    if(!k) return;
 
-try{
+    let data = decodeKey(k);
+    if(!data) return;
 
-let r=await fetch(API+"/list_key")
-
-let data=await r.json()
-
-let html=""
-
-data.forEach(k=>{
-
-let date=new Date(k.expire*1000)
-
-html+=`
-<tr>
-<td>${k.key}</td>
-<td>${k.ip||""}</td>
-<td>${k.device||""}</td>
-<td>${date.toLocaleString()}</td>
-</tr>
-`
-
-})
-
-document.getElementById("table").innerHTML=html
-
-}catch{
-
-document.getElementById("table").innerHTML="Không tải được dữ liệu"
-
+    if(Date.now() < data.exp){
+        login.style.display="none";
+        tool.style.display="block";
+    }
 }
 
-}
-
-
-loadKeys()
-
-setInterval(loadKeys,5000)
+autoLogin();
 
 </script>
 
